@@ -1,0 +1,61 @@
+package org.example;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+
+public class BillingManager {
+
+    private final List<Invoice> invoices = new ArrayList<>();
+
+    /**
+     * Berechnet Kosten einer Session + bucht vom Guthaben ab.
+     */
+    public void chargeCustomerForSession(ChargingSession session) {
+        if (session == null) {
+            throw new IllegalArgumentException("Session cannot be null");
+        }
+
+        Customer customer = session.getCustomer();
+        CustomerAccount account = customer.getAccount();
+
+        BigDecimal totalCost = session.getTotalCost();
+
+        // Automatische Abbuchung
+        account.debit(totalCost);
+
+        // Session zur Rechnung hinzufügen
+        Invoice invoice = findOrCreateInvoice(customer);
+        invoice.addSession(session);
+    }
+
+    /**
+     * Holt existierende Rechnung oder erstellt eine neue.
+     */
+    private Invoice findOrCreateInvoice(Customer customer) {
+        return invoices.stream()
+                .filter(i -> i.getCustomer().equals(customer))
+                .findFirst()
+                .orElseGet(() -> {
+                    Invoice newInvoice = new Invoice(
+                            "INV-" + customer.getCustomerId(),
+                            customer
+                    );
+                    invoices.add(newInvoice);
+                    return newInvoice;
+                });
+    }
+
+    /**
+     * Gibt Rechnung mit allen Sessions zurück.
+     */
+    public Invoice getInvoiceForCustomer(Customer customer) {
+        return invoices.stream()
+                .filter(i -> i.getCustomer().equals(customer))
+                .findFirst()
+                .orElse(null);
+    }
+
+
+}
+
