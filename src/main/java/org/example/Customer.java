@@ -12,4 +12,7 @@ public class Customer extends User {
 
     public String getCustomerNumber() { return customerNumber; }
     public CustomerAccount getAccount() { return account; }
+    public String getCustomerId() {
+        return getUserId();
+    }
 }

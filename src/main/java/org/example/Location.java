@@ -8,6 +8,7 @@ public class Location {
     private String name;
     private String address;
     private final List<ChargingPoint> chargingPoints = new ArrayList<>();
+    private Tariff tariff;
 
     public Location(String locationId, String name, String address){
         this.locationId = locationId;
@@ -20,7 +21,13 @@ public class Location {
     public Location setName(String name){ this.name = name; return this; }
     public String getAddress(){ return address; }
     public Location setAddress(String address){ this.address = address; return this; }
+    public Tariff getTariff() {
 
+        return tariff;
+    }
+    public void setTariff(Tariff tariff) {
+        this.tariff = tariff;
+    }
     public void addChargingPoint(ChargingPoint cp){
         chargingPoints.add(cp);
     }
