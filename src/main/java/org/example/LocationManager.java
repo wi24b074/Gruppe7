@@ -23,4 +23,16 @@ public class LocationManager {
     }
 
     public List<Location> getAll(){ return List.copyOf(locations); }
+
+    public List<Location> getAvailableLocations() {
+        List<Location> result = new ArrayList<>();
+        for (Location loc : locations) {
+            boolean hasAvailable = loc.getChargingPoints().stream()
+                    .anyMatch(cp -> cp.getStatus() == ChargingStatus.IN_BETRIEB_FREI);
+            if (hasAvailable) {
+                result.add(loc);
+            }
+        }
+        return result;
+    }
 }
