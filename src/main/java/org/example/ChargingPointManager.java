@@ -6,6 +6,7 @@ import java.util.List;
 public class ChargingPointManager {
     private static final ChargingPointManager INSTANCE = new ChargingPointManager();
     private final List<ChargingPoint> points = new ArrayList<>();
+    private final List<ChargingSession> sessions = new ArrayList<>();
 
     private ChargingPointManager(){}
 
@@ -25,5 +26,15 @@ public class ChargingPointManager {
     public void setStatus(String id, ChargingStatus status){
         ChargingPoint p = findById(id);
         if(p != null) p.setStatus(status);
+    }
+
+    public void addSession(ChargingSession s) {
+        sessions.add(s);
+    }
+
+    public List<ChargingSession> getSessionsForCustomer(Customer customer) {
+        return sessions.stream()
+                .filter(s -> s.getCustomer().equals(customer))
+                .toList();
     }
 }
