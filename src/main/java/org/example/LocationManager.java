@@ -35,4 +35,28 @@ public class LocationManager {
         }
         return result;
     }
+
+    public void printLocationOverview() {
+        for (Location loc : getAll()) {
+            int total = loc.getChargingPoints().size();
+            long free = loc.getChargingPoints().stream()
+                    .filter(cp -> cp.getStatus() == ChargingStatus.IN_BETRIEB_FREI)
+                    .count();
+            long occupied = loc.getChargingPoints().stream()
+                    .filter(cp -> cp.getStatus() == ChargingStatus.IN_BETRIEB_BESETZT)
+                    .count();
+            long outOfOrder = loc.getChargingPoints().stream()
+                    .filter(cp -> cp.getStatus() == ChargingStatus.AUSSER_BETRIEB)
+                    .count();
+
+            System.out.println(
+                    loc.getLocationId() + " - " + loc.getName() +
+                            " | Ladepunkte gesamt: " + total +
+                            " | frei: " + free +
+                            " | belegt: " + occupied +
+                            " | außer Betrieb: " + outOfOrder
+            );
+        }
+    }
+
 }
