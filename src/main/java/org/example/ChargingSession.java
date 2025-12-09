@@ -20,7 +20,11 @@ public class ChargingSession {
         this.customer = customer;
         this.chargingPoint = chargingPoint;
         this.startTime = new Date();
+        chargingPoint.setStatus(ChargingStatus.IN_BETRIEB_BESETZT);
     }
+
+
+
 
 
     public void endSession(double energyKWh, Tariff tariff) {
