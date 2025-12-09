@@ -49,5 +49,15 @@ public class ChargingPointManager {
         }
     }
 
-
+    public ChargingPoint selectFreeChargingPoint(String pointId) {
+        ChargingPoint cp = findById(pointId);
+        if (cp == null) {
+            throw new IllegalArgumentException("Ladepunkt " + pointId + " existiert nicht");
+        }
+        if (cp.getStatus() != ChargingStatus.IN_BETRIEB_FREI) {
+            throw new IllegalStateException("Ladepunkt " + pointId + " ist nicht verfügbar");
+        }
+        cp.setStatus(ChargingStatus.IN_BETRIEB_BESETZT);
+        return cp;
+    }
 }
