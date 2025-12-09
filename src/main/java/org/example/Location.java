@@ -20,6 +20,7 @@ public class Location {
     public String getName(){ return name; }
     public Location setName(String name){ this.name = name; return this; }
     public String getAddress(){ return address; }
+
     public Location setAddress(String address){ this.address = address; return this; }
     public Tariff getTariff() {
 

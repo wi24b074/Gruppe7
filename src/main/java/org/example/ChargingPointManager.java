@@ -59,4 +59,35 @@ public class ChargingPointManager {
         }
         return cp;
     }
+
+    public void updateChargingPoint(String pointId, ChargingMode newMode, Location newLocation) {
+        ChargingPoint cp = findById(pointId);
+        if (cp == null) {
+            throw new IllegalArgumentException("Ladepunkt " + pointId + " existiert nicht");
+        }
+
+        if (newMode != null) {
+            cp.setMode(newMode);      // falls du setMode hast, sonst weglassen
+        }
+        if (newLocation != null) {
+            cp.setLocation(newLocation); // falls du setLocation hast, sonst locationId ändern
+        }
+    }
+
+    public void deactivateChargingPoint(String pointId) {
+        ChargingPoint cp = findById(pointId);
+        if (cp == null) {
+            throw new IllegalArgumentException("Ladepunkt " + pointId + " existiert nicht");
+        }
+        cp.setStatus(ChargingStatus.AUSSER_BETRIEB);
+    }
+
+    public void activateChargingPoint(String pointId) {
+        ChargingPoint cp = findById(pointId);
+        if (cp == null) {
+            throw new IllegalArgumentException("Ladepunkt " + pointId + " existiert nicht");
+        }
+        cp.setStatus(ChargingStatus.IN_BETRIEB_FREI);
+    }
+
 }

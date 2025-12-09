@@ -5,7 +5,7 @@ public class ChargingPoint {
     private final String pointId;
     private ChargingMode mode;
     private ChargingStatus status;
-    private final Location location; //Location auf branch feature/location
+    private Location location; //Location auf branch feature/location
 
     public ChargingPoint(String pointId, ChargingMode mode, Location location){
         this.pointId = pointId;
@@ -20,4 +20,10 @@ public class ChargingPoint {
     public ChargingStatus getStatus(){ return status; }
     public void setStatus(ChargingStatus status){ this.status = status; }
     public Location getLocation(){ return location; }
+    public void setLocation(Location newLocation) {
+        if (newLocation == null) {
+            throw new IllegalArgumentException("Location cannot be null");
+        }
+        this.location = newLocation;
+    }
 }
