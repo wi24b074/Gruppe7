@@ -55,5 +55,21 @@ public class BillingManager {
                 .orElse(null);
     }
 
+    public List<ChargingSession> getSessionsForLocation(Location location) {
+        List<ChargingSession> result = new ArrayList<>();
+
+        for (Invoice invoice : invoices) {
+            for (ChargingSession session : invoice.getSessions()) {
+                ChargingPoint cp = session.getChargingPoint();
+                if (cp != null && cp.getLocation().equals(location)) {
+                    result.add(session);
+                }
+            }
+        }
+
+        return result;
+    }
+
+
 }
 
