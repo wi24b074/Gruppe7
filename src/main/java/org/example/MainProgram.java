@@ -36,7 +36,7 @@ public class MainProgram {
         System.out.println("Neuer Status von CP-1: " + updated.getStatus());
 
 
-        Customer cust = cm.registerCustomer("max@example.com", "Max Mustermann");
+        Customer cust = cm.registerCustomer("max@example.com", "Max Mustermann", "Passwort");
         System.out.println("Registered customer: " + cust.getEmail());
 
         cust.getAccount().credit(BigDecimal.valueOf(10.00));

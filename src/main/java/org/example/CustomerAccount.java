@@ -8,6 +8,7 @@ public class CustomerAccount {
     private final String accountId;
     private BigDecimal balance = BigDecimal.ZERO;
     private final List<TopUp> topUps = new ArrayList<>();
+    private final List<AccountEntry> history = new ArrayList<>();
 
     public CustomerAccount(String accountId){
         this.accountId = accountId;
@@ -26,4 +27,8 @@ public class CustomerAccount {
     }
 
     public List<TopUp> getTopUps(){ return List.copyOf(topUps); }
+
+    public List<AccountEntry> getHistory() {
+        return List.copyOf(history);
+    }
 }
