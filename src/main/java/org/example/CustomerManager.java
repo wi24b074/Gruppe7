@@ -12,11 +12,19 @@ public class CustomerManager {
 
     public static CustomerManager getInstance(){ return INSTANCE; }
 
-    public Customer registerCustomer(String email, String name){
+    public Customer registerCustomer(String email, String name, String passwordHash){
         String id = UUID.randomUUID().toString();
-        Customer c = new Customer(id, email, name, "CUST-"+id.substring(0,8));
+        Customer c = new Customer(id, email, name, passwordHash);
         customers.add(c);
         return c;
+    }
+
+    public Customer login(String email, String passwordHash) {
+        return customers.stream()
+                .filter(c -> c.getEmail().equals(email)
+                        && c.getPasswordHash().equals(passwordHash))
+                .findFirst()
+                .orElse(null); // oder Exception werfen
     }
 
     public Customer findByEmail(String email){

@@ -6,7 +6,7 @@ public abstract class User {
     private String email;
     private String passwordHash;
 
-    public User(String userId, String email, String name) {
+    public User(String userId, String email, String name, String passwordHash) {
         this.userId = userId;
         this.email = email;
         this.name = name;
@@ -16,4 +16,5 @@ public abstract class User {
     public String getName(){ return name; }
     public User setName(String name){ this.name = name; return this; }
     public String getEmail(){ return email; }
+    public String getPasswordHash(){ return passwordHash; }
 }
