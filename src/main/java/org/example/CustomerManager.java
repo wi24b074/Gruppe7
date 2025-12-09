@@ -19,6 +19,11 @@ public class CustomerManager {
         return c;
     }
 
+    public void topUpCustomer(String email, double amount) {
+        Customer customer = findByEmail(email);
+        customer.topUp(amount);
+    }
+
     public Customer login(String email, String passwordHash) {
         return customers.stream()
                 .filter(c -> c.getEmail().equals(email)

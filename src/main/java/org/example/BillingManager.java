@@ -21,10 +21,9 @@ public class BillingManager {
 
         BigDecimal totalCost = session.getTotalCost();
 
-        // Automatische Abbuchung
         account.debit(totalCost);
 
-        // Session zur Rechnung hinzufügen
+
         Invoice invoice = findOrCreateInvoice(customer);
         invoice.addSession(session);
     }

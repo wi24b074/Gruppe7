@@ -37,4 +37,17 @@ public class ChargingPointManager {
                 .filter(s -> s.getCustomer().equals(customer))
                 .toList();
     }
+
+    public void printNetworkStatus() {
+        for (ChargingPoint cp : points) {
+            System.out.println(
+                    "Ladepunkt " + cp.getPointId() +
+                            " @ " + cp.getLocation().getName() +
+                            " | Modus: " + cp.getMode() +
+                            " | Status: " + cp.getStatus()
+            );
+        }
+    }
+
+
 }
