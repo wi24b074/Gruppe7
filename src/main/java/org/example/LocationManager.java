@@ -59,4 +59,32 @@ public class LocationManager {
         }
     }
 
+    public static class LocationDetails {
+        private final Location location;
+        private final Tariff tariff;
+        private final List<ChargingPoint> chargingPoints;
+
+        public LocationDetails(Location location, Tariff tariff, List<ChargingPoint> chargingPoints) {
+            this.location = location;
+            this.tariff = tariff;
+            this.chargingPoints = chargingPoints;
+        }
+
+        public Location getLocation() { return location; }
+        public Tariff getTariff() { return tariff; }
+        public List<ChargingPoint> getChargingPoints() { return chargingPoints; }
+    }
+
+    public LocationDetails getLocationDetails(Location locationId) {
+        Location loc = findById(String.valueOf(locationId));
+        if (loc == null) {
+            return null;
+        }
+
+        PricingManager pm = PricingManager.getInstance();
+        Tariff tariff = pm.getTariffForLocation(locationId);
+
+        return new LocationDetails(loc, tariff, loc.getChargingPoints());
+    }
+
 }

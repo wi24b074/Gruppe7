@@ -3,6 +3,7 @@ package org.example;
 import java.math.BigDecimal;
 
 public class PricingManager {
+    private static final PricingManager INSTANCE = new PricingManager();
 
     public void setTariff(Location location, BigDecimal acPrice, BigDecimal dcPrice) {
         if (location == null) {
@@ -22,6 +23,9 @@ public class PricingManager {
             throw new IllegalStateException("Location has no tariff set yet");
         }
         location.getTariff().setPrices(newAcPrice, newDcPrice);
+    }
+    public static PricingManager getInstance() {
+        return INSTANCE;
     }
 
     public Tariff getTariffForLocation(Location location) {
