@@ -26,7 +26,7 @@ public class CustomerAccountSteps {
         registrationSuccess = currentCustomer != null;
     }
 
-    @Then(" wird ein neues Kundenkonto erstellt")
+    @Then("wird ein neues Kundenkonto erstellt")
     public void newAccountCreated() {
         assertTrue(registrationSuccess);
         assertNotNull(currentCustomer);
