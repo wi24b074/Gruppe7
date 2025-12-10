@@ -13,3 +13,9 @@ Feature: Nutzung und Auslastung einsehen
     When der Betreiber die Standortübersicht aufruft
     Then wird eine Liste aller Standorte angezeigt
     And zu jedem Standort werden Anzahl und Zustand der Ladepunkte dargestellt
+
+  Scenario: Ladevorgänge pro Standort einsehen
+    Given der Betreiber ist im Admin-Dashboard eingeloggt
+    And der Betreiber befindet sich im Bereich "Ladevorgänge"
+    When der Betreiber einen Standort auswählt
+    Then werden alle Ladevorgänge angezeigt, die an diesem Standort durchgeführt wurden
