@@ -1,24 +1,23 @@
-Feature: Standort- und Ladepunktverwaltung
-  Als Betreiber möchte ich Standorte und Ladepunkte im System verwalten können,
-  damit die Ladeinfrastruktur vollständig und korrekt abgebildet, erweitert und gewartet werden kann.
+Feature: Standort- und Ladepunkt verwalten
+  Als Administrator möchte ich Standorte und Ladepunkte im System verwalten können,
+  damit ich die Ladeinfrastruktur vollständig und korrekt abbilden, erweitern und warten kann.
 
-  Scenario: Neuer Standort wird angelegt
-    Given es existiert kein Standort mit id "LOC-1"
-    When der Betreiber legt einen neuen Standort mit id "LOC-1" und name "Hauptbahnhof" an
-    Then existiert ein Standort mit id "LOC-1"
-    And der Standort hat den Namen "Hauptbahnhof"
+  Scenario: Neuen Standort anlegen
+    Given ein Administrator befindet sich im Verwaltungsbereich
+    When er einen neuen Standort mit allen notwendigen Daten anlegt
+    Then wird der Standort erfolgreich im System gespeichert
 
-  Scenario: Ladepunktstatus sehen
-    Given ein Standort "LOC-1" mit Ladepunkt "CP-1" existiert
-    When der Betreiber fragt den Status von "CP-1" ab
-    Then ist der Status von "CP-1" "IN_BETRIEB_FREI"
+  Scenario: Neuen Ladepunkt zu bestehendem Standort hinzufügen
+    Given ein Standort existiert im System
+    When der Administrator einen neuen Ladepunkt mit den technischen Details hinzufügt
+    Then ist der neue Ladepunkt dem Standort zugeordnet und im System sichtbar
 
   Scenario: Ladepunkt bearbeiten
-    Given ein Standort "LOC-1" mit Ladepunkt "CP-1" existiert
-    When der Betreiber ändert den Modus von "CP-1" auf "DC"
-    Then hat der Ladepunkt "CP-1" den Modus "DC"
+    Given ein bestehender Ladepunkt ist im System vorhanden
+    When der Administrator Änderungen an diesem Ladepunkt vornimmt
+    Then sind die aktualisierten Daten im System gespeichert
 
   Scenario: Ladepunkt deaktivieren
-    Given ein Standort "LOC-1" mit Ladepunkt "CP-1" existiert
-    When der Betreiber setzt den Status von "CP-1" auf "AUSSER_BETRIEB"
-    Then ist der Status von "CP-1" "AUSSER_BETRIEB"
+    Given ein Ladepunkt ist im System aktiv
+    When der Administrator den Ladepunkt deaktiviert
+    Then erscheint der Ladepunkt als deaktiviert und ist nicht mehr nutzbar
