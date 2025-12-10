@@ -1,16 +1,7 @@
 package org.test;
 
-import io.cucumber.java.en.Given;
-import io.cucumber.java.en.When;
-import io.cucumber.java.en.Then;
-import io.cucumber.java.en.And;
-import org.example.Customer;
-import org.example.BillingManager;
-import org.example.Invoice;
-import org.example.CustomerAccount;
-import org.example.ChargingPoint;
-import org.example.ChargingSession;
-import org.example.ChargingMode;
+import io.cucumber.java.en.*;
+import org.example.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 

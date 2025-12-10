@@ -1,13 +1,9 @@
 package org.test;
 
-import io.cucumber.java.en.Given;
-import io.cucumber.java.en.When;
-import io.cucumber.java.en.Then;
-import org.example.Customer;
-import org.example.CustomerManager;
+import io.cucumber.java.en.*;
+import org.example.*;
 
 import static org.junit.jupiter.api.Assertions.*;
-
 public class CustomerAccountSteps {
 
     private final CustomerManager customerManager = CustomerManager.getInstance();
