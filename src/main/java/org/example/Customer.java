@@ -2,7 +2,7 @@ package org.example;
 
 public class Customer extends User {
     private final String customerNumber;
-    private final CustomerAccount account;
+    private  CustomerAccount account;
     private double balance;
 
     public Customer(String userId, String email, String name, String customerNumber) {
@@ -25,4 +25,6 @@ public class Customer extends User {
     public String getCustomerId() {
         return getUserId();
     }
+
+    public void setAccount(CustomerAccount account) { this.account = account; }
 }
