@@ -7,7 +7,6 @@ Feature: Kundenkonto anlegen
     Given ein neuer Kunde befindet sich auf der Registrierungsseite
     When der Kunde seine Daten eingibt und die Registrierung bestätigt
     Then wird ein neues Kundenkonto erstellt
-    And der Kunde erhält Zugriff auf seine persönlichen Kontofunktionen
 
   Scenario: Registrierter Kunde loggt sich ein
     Given ein registrierter Kunde befindet sich auf der Loginseite

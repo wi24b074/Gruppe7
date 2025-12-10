@@ -29,7 +29,7 @@ public class CustomerManager {
                 .filter(c -> c.getEmail().equals(email)
                         && c.getPasswordHash().equals(passwordHash))
                 .findFirst()
-                .orElse(null); // oder Exception werfen
+                .orElse(null);
     }
 
     public Customer findByEmail(String email){
