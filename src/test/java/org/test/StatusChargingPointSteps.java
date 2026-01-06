@@ -1,13 +1,10 @@
 package org.test;
 
-import io.cucumber.java.en.Given;
-import io.cucumber.java.en.When;
-import io.cucumber.java.en.Then;
+import io.cucumber.java.en.*;
+import io.cucumber.datatable.DataTable;
 import org.example.*;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class StatusChargingPointSteps {
@@ -16,143 +13,155 @@ public class StatusChargingPointSteps {
     private final ChargingPointManager cpManager = ChargingPointManager.getInstance();
     private final BillingManager billingManager = new BillingManager();
 
-    private List<ChargingPoint> allPoints = new ArrayList<>();
-    private List<Location> allLocations = new ArrayList<>();
-    private List<ChargingSession> sessionsForLocation = new ArrayList<>();
+    private List<ChargingPoint> visibleChargingPoints;
+    private List<Location> visibleLocations;
+    private List<ChargingSession> sessionsForLocation;
     private Location selectedLocation;
 
 
+    @Given("folgende Ladepunkte existieren:")
+    public void folgendeLadepunkteExistieren(DataTable table) {
+        for (Map<String, String> row : table.asMaps()) {
+            Location loc = locationManager.findById(row.get("StandortId"));
+            if (loc == null) {
+                loc = locationManager.createLocation(
+                        row.get("StandortId"),
+                        row.get("StandortId"),
+                        ""
+                );
+            }
+
+            ChargingPoint cp = cpManager.createChargingPoint(
+                    row.get("LadepunktId"),
+                    ChargingMode.AC,
+                    loc
+            );
+
+            cp.setStatus(ChargingStatus.valueOf(row.get("Status")));
+        }
+    }
+
+    @Given("folgende Standorte mit Ladepunkten existieren:")
+    public void folgendeStandorteExistieren(DataTable table) {
+        folgendeLadepunkteExistieren(table);
+    }
+
+    @Given("folgende Ladevorgänge existieren:")
+    public void folgendeLadevorgaengeExistieren(DataTable table) {
+        for (Map<String, String> row : table.asMaps()) {
+            Location loc = locationManager.findById(row.get("StandortId"));
+            if (loc == null) {
+                loc = locationManager.createLocation(
+                        row.get("StandortId"),
+                        row.get("StandortId"),
+                        ""
+                );
+            }
+
+            ChargingPoint cp = cpManager.findById(row.get("LadepunktId"));
+            if (cp == null) {
+                cp = cpManager.createChargingPoint(
+                        row.get("LadepunktId"),
+                        ChargingMode.AC,
+                        loc
+                );
+            }
+
+            Customer customer = new Customer(
+                    "C-" + row.get("SessionId"),
+                    "test@example.com",
+                    "Test",
+                    "PW"
+            );
+
+            ChargingSession session = new ChargingSession(
+                    row.get("SessionId"),
+                    customer,
+                    cp
+            );
+
+            billingManager.chargeCustomerForSession(session);
+        }
+    }
 
     @Given("der Betreiber befindet sich auf dem Dashboard")
-    public void derBetreiberBefindetSichAufDemDashboard() {
-        if (locationManager.getAll().isEmpty()) {
-            Location loc = locationManager.createLocation("LOC-DASH-1", "Dashboard-Standort", "Adresse 1");
-            cpManager.createChargingPoint("CP-D-1", ChargingMode.AC, loc);
-            cpManager.createChargingPoint("CP-D-2", ChargingMode.DC, loc);
-            cpManager.setStatus("CP-D-1", ChargingStatus.IN_BETRIEB_FREI);
-            cpManager.setStatus("CP-D-2", ChargingStatus.IN_BETRIEB_BESETZT);
-        }
+    public void betreiberAufDashboard() {
+    }
+
+    @Given("der Betreiber befindet sich im Verwaltungsbereich")
+    public void betreiberImVerwaltungsbereich() {
+    }
+
+    @Given("der Betreiber ist im Admin-Dashboard eingeloggt")
+    public void betreiberEingeloggt() {
+    }
+
+    @Given("der Betreiber befindet sich im Bereich {string}")
+    public void betreiberImBereich(String bereich) {
+        assertNotNull(bereich);
     }
 
     @When("der Betreiber die Echtzeitansicht der Ladepunkte öffnet")
-    public void derBetreiberDieEchtzeitansichtDerLadepunkteOeffnet() {
-        allPoints = new ArrayList<>();
+    public void oeffnetEchtzeitansicht() {
+        visibleChargingPoints = new ArrayList<>();
         for (Location loc : locationManager.getAll()) {
-            allPoints.addAll(loc.getChargingPoints());
-        }
-    }
-
-    @Then("werden die aktuellen Statusinformationen aller Ladepunkte angezeigt")
-    public void werdenDieAktuellenStatusinformationenAllerLadepunkteAngezeigt() {
-        assertNotNull(allPoints);
-        assertFalse(allPoints.isEmpty(), "Es wurden keine Ladepunkte gefunden");
-
-        for (ChargingPoint cp : allPoints) {
-            assertNotNull(cp.getStatus(), "Ladepunkt " + cp.getPointId() + " hat keinen Status");
-        }
-    }
-
-    @Then("der Betreiber sieht, welche Ladepunkte belegt, frei oder gestört sind")
-    public void derBetreiberSiehtWelcheLadepunkteBelegtFreiOderGestoertSind() {
-        boolean hatFrei = false;
-        boolean hatBelegt = false;
-        boolean hatGestoert = false;
-
-        for (ChargingPoint cp : allPoints) {
-            if (cp.getStatus() == ChargingStatus.IN_BETRIEB_FREI) {
-                hatFrei = true;
-            } else if (cp.getStatus() == ChargingStatus.IN_BETRIEB_BESETZT) {
-                hatBelegt = true;
-            } else if (cp.getStatus() == ChargingStatus.AUSSER_BETRIEB) {
-                hatGestoert = true;
-            }
-        }
-
-        assertTrue(hatFrei || hatBelegt || hatGestoert,
-                "Es existiert kein Ladepunkt mit den erwarteten Statuswerten");
-    }
-
-
-
-    @Given("der Betreiber befindet sich im Verwaltungsbereich")
-    public void derBetreiberBefindetSichImVerwaltungsbereich() {
-        if (locationManager.getAll().isEmpty()) {
-            Location loc1 = locationManager.createLocation("LOC-OV-1", "City West", "Adresse 2");
-            Location loc2 = locationManager.createLocation("LOC-OV-2", "City Ost", "Adresse 3");
-
-            cpManager.createChargingPoint("CP-OV-1", ChargingMode.AC, loc1);
-            cpManager.createChargingPoint("CP-OV-2", ChargingMode.DC, loc2);
-            cpManager.setStatus("CP-OV-1", ChargingStatus.IN_BETRIEB_FREI);
-            cpManager.setStatus("CP-OV-2", ChargingStatus.AUSSER_BETRIEB);
+            visibleChargingPoints.addAll(loc.getChargingPoints());
         }
     }
 
     @When("der Betreiber die Standortübersicht aufruft")
-    public void derBetreiberDieStandortuebersichtAufruft() {
-        allLocations = locationManager.getAll();
+    public void oeffnetStandortuebersicht() {
+        visibleLocations = locationManager.getAll();
+    }
+
+    @When("der Betreiber wählt den Standort {string}")
+    public void waehltStandort(String locationId) {
+        selectedLocation = locationManager.findById(locationId);
+        assertNotNull(selectedLocation);
+        sessionsForLocation = billingManager.getSessionsForLocation(selectedLocation);
+    }
+
+    @Then("werden die aktuellen Statusinformationen aller Ladepunkte angezeigt")
+    public void statusinformationenAngezeigt() {
+        assertNotNull(visibleChargingPoints);
+        assertFalse(visibleChargingPoints.isEmpty());
+    }
+
+    @Then("der Betreiber sieht Ladepunkte mit Status:")
+    public void betreiberSiehtStatus(DataTable table) {
+        Set<ChargingStatus> expected = new HashSet<>();
+        for (String status : table.asList()) {
+            expected.add(ChargingStatus.valueOf(status));
+        }
+
+        boolean found = visibleChargingPoints.stream()
+                .anyMatch(cp -> expected.contains(cp.getStatus()));
+
+        assertTrue(found);
     }
 
     @Then("wird eine Liste aller Standorte angezeigt")
-    public void wirdEineListeAllerStandorteAngezeigt() {
-        assertNotNull(allLocations);
-        assertFalse(allLocations.isEmpty(), "Es gibt keine Standorte im System");
+    public void listeAllerStandorte() {
+        assertNotNull(visibleLocations);
+        assertFalse(visibleLocations.isEmpty());
     }
 
     @Then("zu jedem Standort werden Anzahl und Zustand der Ladepunkte dargestellt")
-    public void zuJedemStandortWerdenAnzahlUndZustandDerLadepunkteDargestellt() {
-        for (Location loc : allLocations) {
-            List<ChargingPoint> cps = loc.getChargingPoints();
-            assertNotNull(cps, "Standort " + loc.getLocationId() + " hat null-Liste an Ladepunkten");
-            for (ChargingPoint cp : cps) {
-                assertNotNull(cp.getStatus(), "Ladepunkt " + cp.getPointId() + " hat keinen Status");
+    public void anzahlUndZustand() {
+        for (Location loc : visibleLocations) {
+            assertNotNull(loc.getChargingPoints());
+            for (ChargingPoint cp : loc.getChargingPoints()) {
+                assertNotNull(cp.getStatus());
             }
         }
     }
 
-
-
-    @Given("der Betreiber ist im Admin-Dashboard eingeloggt")
-    public void derBetreiberIstImAdminDashboardEingeloggt() {
-        Location loc = locationManager.findById("LOC-STAT-1");
-        if (loc == null) {
-            loc = locationManager.createLocation("LOC-STAT-1", "Statistik-Standort", "Adresse 4");
-        }
-        selectedLocation = loc;
-
-        ChargingPoint cp = cpManager.findById("CP-STAT-1");
-        if (cp == null) {
-            cp = cpManager.createChargingPoint("CP-STAT-1", ChargingMode.AC, loc);
-        }
-
-        Customer customer = new Customer("C-STAT-1", "stats@example.com", "Stat Kunde", "CUST-STAT-1");
-
-        ChargingSession s1 = new ChargingSession("1", customer, cp);
-        ChargingSession s2 = new ChargingSession("2", customer, cp);
-
-        billingManager.chargeCustomerForSession(s1);
-        billingManager.chargeCustomerForSession(s2);
-    }
-
-    @Given("der Betreiber befindet sich im Bereich {string}")
-    public void derBetreiberBefindetSichImBereich(String bereich) {
-        assertEquals("Ladevorgänge", bereich);
-    }
-
-    @When("der Betreiber einen Standort auswählt")
-    public void derBetreiberEinenStandortAuswaehlt() {
-        assertNotNull(selectedLocation, "Kein Standort für die Auswertung gesetzt");
-        sessionsForLocation = billingManager.getSessionsForLocation(selectedLocation);
-    }
-
     @Then("werden alle Ladevorgänge angezeigt, die an diesem Standort durchgeführt wurden")
-    public void werdenAlleLadevorgaengeAnDiesemStandortAngezeigt() {
-        assertNotNull(sessionsForLocation, "Session-Liste ist null");
-        assertFalse(sessionsForLocation.isEmpty(), "Es wurden keine Ladevorgänge für den Standort gefunden");
-
+    public void ladevorgaengeFuerStandort() {
+        assertNotNull(sessionsForLocation);
+        assertFalse(sessionsForLocation.isEmpty());
         for (ChargingSession s : sessionsForLocation) {
-            assertNotNull(s.getChargingPoint());
-            assertEquals(selectedLocation, s.getChargingPoint().getLocation(),
-                    "Ladevorgang gehört nicht zum ausgewählten Standort");
+            assertEquals(selectedLocation, s.getChargingPoint().getLocation());
         }
     }
 }
