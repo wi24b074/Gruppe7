@@ -20,106 +20,91 @@ public class ChargerSteps {
     private Location currentLocation;
     private ChargingPoint currentPoint;
 
-
-
     @Given("ein Administrator befindet sich im Verwaltungsbereich")
     public void admin_im_verwaltungsbereich() {
-
+        // rein fachlicher Kontext
         assertTrue(true);
     }
 
-    @When("er einen neuen Standort mit allen notwendigen Daten anlegt")
-    public void admin_legt_neuen_standort_an() {
-        // Testdaten (ID/Name/Adresse kannst du natürlich anpassen)
-        currentLocation = locationManager.createLocation("LOC-1", "Hauptbahnhof", "Bahnhofstraße 1");
+    @When("er einen neuen Standort mit id {string}, name {string} und adresse {string} anlegt")
+    public void admin_legt_neuen_standort_an(String id, String name, String address) {
+        currentLocation = locationManager.createLocation(id, name, address);
         assertNotNull(currentLocation);
     }
 
-    @Then("wird der Standort erfolgreich im System gespeichert")
-    public void standort_wird_erfolgreich_gespeichert() {
-        Location loc = locationManager.findById(currentLocation.getLocationId());
-        assertNotNull(loc, "Standort wurde nicht im System gefunden");
+    @Then("existiert ein Standort mit id {string} und name {string}")
+    public void standort_existiert(String id, String expectedName) {
+        Location loc = locationManager.findById(id);
+        assertNotNull(loc);
+        assertEquals(expectedName, loc.getName());
     }
 
-
-
-    @Given("ein Standort existiert im System")
-    public void ein_standort_existiert_im_system() {
-        currentLocation = locationManager.findById("LOC-1");
+    @Given("ein Standort mit id {string} existiert")
+    public void standort_existiert(String id) {
+        currentLocation = locationManager.findById(id);
         if (currentLocation == null) {
-            currentLocation = locationManager.createLocation("LOC-1", "Hauptbahnhof", "Bahnhofstraße 1");
+            currentLocation = locationManager.createLocation(id, id, "");
         }
     }
 
-    @When("der Administrator einen neuen Ladepunkt mit den technischen Details hinzufügt")
-    public void admin_fuegt_neuen_ladepunkt_hinzu() {
-        currentPoint = cpManager.createChargingPoint("CP-1", ChargingMode.AC, currentLocation);
-        assertNotNull(currentPoint);
+    @When("der Administrator fügt einen Ladepunkt mit id {string} und Modus {string} zum Standort {string} hinzu")
+    public void ladepunkt_hinzufuegen(String cpId, String mode, String locationId) {
+        Location loc = locationManager.findById(locationId);
+        assertNotNull(loc);
+        currentPoint = cpManager.createChargingPoint(cpId, ChargingMode.valueOf(mode), loc);
     }
 
-    @Then("ist der neue Ladepunkt dem Standort zugeordnet und im System sichtbar")
-    public void neuer_ladepunkt_ist_zugeordnet_und_sichtbar() {
-        ChargingPoint cp = cpManager.findById("CP-1");
-        assertNotNull(cp, "Ladepunkt CP-1 nicht gefunden");
-        assertNotNull(cp.getLocation(), "Ladepunkt hat keinen Standort");
-        assertEquals(currentLocation, cp.getLocation(), "Ladepunkt ist nicht dem erwarteten Standort zugeordnet");
-    }
-
-
-
-    @Given("ein bestehender Ladepunkt ist im System vorhanden")
-    public void ein_bestehender_ladepunkt_ist_im_system_vorhanden() {
-        currentLocation = locationManager.findById("LOC-1");
-        if (currentLocation == null) {
-            currentLocation = locationManager.createLocation("LOC-1", "Hauptbahnhof", "Bahnhofstraße 1");
-        }
-
-        currentPoint = cpManager.findById("CP-1");
-        if (currentPoint == null) {
-            currentPoint = cpManager.createChargingPoint("CP-1", ChargingMode.AC, currentLocation);
-        }
-    }
-
-    @When("der Administrator Änderungen an diesem Ladepunkt vornimmt")
-    public void admin_nimmt_aenderungen_am_ladepunkt_vor() {
-        cpManager.updateChargingPoint(currentPoint.getPointId(), ChargingMode.DC, currentLocation);
-    }
-
-    @Then("sind die aktualisierten Daten im System gespeichert")
-    public void aktualisierte_daten_sind_gespeichert() {
-        ChargingPoint cp = cpManager.findById(currentPoint.getPointId());
+    @Then("ist der Ladepunkt {string} dem Standort {string} zugeordnet")
+    public void ladepunkt_zugeordnet(String cpId, String locationId) {
+        ChargingPoint cp = cpManager.findById(cpId);
         assertNotNull(cp);
-        assertEquals(ChargingMode.DC, cp.getMode(), "Ladepunkt-Modus wurde nicht aktualisiert");
+        assertEquals(locationId, cp.getLocation().getLocationId());
     }
 
-
-
-    @Given("ein Ladepunkt ist im System aktiv")
-    public void ein_ladepunkt_ist_im_system_aktiv() {
-        currentLocation = locationManager.findById("LOC-1");
-        if (currentLocation == null) {
-            currentLocation = locationManager.createLocation("LOC-1", "Hauptbahnhof", "Bahnhofstraße 1");
+    @Given("ein Ladepunkt {string} mit Modus {string} existiert am Standort {string}")
+    public void ladepunkt_existiert(String cpId, String mode, String locationId) {
+        Location loc = locationManager.findById(locationId);
+        if (loc == null) {
+            loc = locationManager.createLocation(locationId, locationId, "");
         }
-
-        currentPoint = cpManager.findById("CP-2");
+        currentPoint = cpManager.findById(cpId);
         if (currentPoint == null) {
-            currentPoint = cpManager.createChargingPoint("CP-2", ChargingMode.AC, currentLocation);
+            currentPoint = cpManager.createChargingPoint(cpId, ChargingMode.valueOf(mode), loc);
         }
-
-        cpManager.setStatus(currentPoint.getPointId(), ChargingStatus.IN_BETRIEB_FREI);
-        assertEquals(ChargingStatus.IN_BETRIEB_FREI,
-                cpManager.findById(currentPoint.getPointId()).getStatus());
     }
 
-    @When("der Administrator den Ladepunkt deaktiviert")
-    public void admin_deaktiviert_den_ladepunkt() {
-        cpManager.deactivateChargingPoint(currentPoint.getPointId());
+    @When("der Administrator ändert den Modus des Ladepunkts {string} auf {string}")
+    public void ladepunkt_modus_aendern(String cpId, String newMode) {
+        cpManager.updateChargingPoint(cpId, ChargingMode.valueOf(newMode), null);
     }
 
-    @Then("erscheint der Ladepunkt als deaktiviert und ist nicht mehr nutzbar")
-    public void ladepunkt_ist_deaktiviert_und_nicht_nutzbar() {
-        ChargingPoint cp = cpManager.findById(currentPoint.getPointId());
-        assertNotNull(cp);
-        assertEquals(ChargingStatus.AUSSER_BETRIEB, cp.getStatus());
+    @Then("hat der Ladepunkt {string} den Modus {string}")
+    public void ladepunkt_hat_modus(String cpId, String expectedMode) {
+        ChargingPoint cp = cpManager.findById(cpId);
+        assertEquals(ChargingMode.valueOf(expectedMode), cp.getMode());
+    }
+
+    @Given("ein aktiver Ladepunkt {string} existiert am Standort {string}")
+    public void aktiver_ladepunkt_existiert(String cpId, String locationId) {
+        Location loc = locationManager.findById(locationId);
+        if (loc == null) {
+            loc = locationManager.createLocation(locationId, locationId, "");
+        }
+        currentPoint = cpManager.findById(cpId);
+        if (currentPoint == null) {
+            currentPoint = cpManager.createChargingPoint(cpId, ChargingMode.AC, loc);
+        }
+        cpManager.setStatus(cpId, ChargingStatus.IN_BETRIEB_FREI);
+    }
+
+    @When("der Administrator deaktiviert den Ladepunkt {string}")
+    public void ladepunkt_deaktivieren(String cpId) {
+        cpManager.deactivateChargingPoint(cpId);
+    }
+
+    @Then("hat der Ladepunkt {string} den Status {string}")
+    public void ladepunkt_hat_status(String cpId, String expectedStatus) {
+        ChargingPoint cp = cpManager.findById(cpId);
+        assertEquals(ChargingStatus.valueOf(expectedStatus), cp.getStatus());
     }
 }

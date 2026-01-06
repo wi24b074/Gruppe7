@@ -4,20 +4,20 @@ Feature: Standort- und Ladepunkt verwalten
 
   Scenario: Neuen Standort anlegen
     Given ein Administrator befindet sich im Verwaltungsbereich
-    When er einen neuen Standort mit allen notwendigen Daten anlegt
-    Then wird der Standort erfolgreich im System gespeichert
+    When er einen neuen Standort mit id "LOC-1", name "Hauptbahnhof" und adresse "Bahnhofstraße 1" anlegt
+    Then existiert ein Standort mit id "LOC-1" und name "Hauptbahnhof"
 
   Scenario: Neuen Ladepunkt zu bestehendem Standort hinzufügen
-    Given ein Standort existiert im System
-    When der Administrator einen neuen Ladepunkt mit den technischen Details hinzufügt
-    Then ist der neue Ladepunkt dem Standort zugeordnet und im System sichtbar
+    Given ein Standort mit id "LOC-1" existiert
+    When der Administrator fügt einen Ladepunkt mit id "CP-1" und Modus "AC" zum Standort "LOC-1" hinzu
+    Then ist der Ladepunkt "CP-1" dem Standort "LOC-1" zugeordnet
 
   Scenario: Ladepunkt bearbeiten
-    Given ein bestehender Ladepunkt ist im System vorhanden
-    When der Administrator Änderungen an diesem Ladepunkt vornimmt
-    Then sind die aktualisierten Daten im System gespeichert
+    Given ein Ladepunkt "CP-1" mit Modus "AC" existiert am Standort "LOC-1"
+    When der Administrator ändert den Modus des Ladepunkts "CP-1" auf "DC"
+    Then hat der Ladepunkt "CP-1" den Modus "DC"
 
   Scenario: Ladepunkt deaktivieren
-    Given ein Ladepunkt ist im System aktiv
-    When der Administrator den Ladepunkt deaktiviert
-    Then erscheint der Ladepunkt als deaktiviert und ist nicht mehr nutzbar
+    Given ein aktiver Ladepunkt "CP-2" existiert am Standort "LOC-1"
+    When der Administrator deaktiviert den Ladepunkt "CP-2"
+    Then hat der Ladepunkt "CP-2" den Status "AUSSER_BETRIEB"
