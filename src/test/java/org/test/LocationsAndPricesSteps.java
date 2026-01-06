@@ -3,7 +3,7 @@ package org.test;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
 import io.cucumber.java.en.Then;
-
+import io.cucumber.datatable.DataTable;
 import org.example.Location;
 import org.example.LocationManager;
 import org.example.PricingManager;
@@ -15,6 +15,7 @@ import org.example.ChargingStatus;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -24,113 +25,103 @@ public class LocationsAndPricesSteps {
     private final ChargingPointManager chargingPointManager = ChargingPointManager.getInstance();
     private final PricingManager pricingManager = PricingManager.getInstance();
 
-    private List<Location> sichtbareStandorte;
-    private Location ausgewaehlterStandort;
-    private ChargingPoint ausgewaehlterLadepunkt;
+    private List<Location> visibleLocations;
+    private Location selectedLocation;
+    private ChargingPoint selectedChargingPoint;
 
 
-
-    @Given("der Kunde befindet sich im Bereich {string}")
-    public void derKundeBefindetSichImBereich(String bereich) {
-        if (locationManager.getAll().isEmpty()) {
-            locationManager.createLocation("LOC-1", "Hauptbahnhof", "Bahnhofstraße 1");
-            locationManager.createLocation("LOC-2", "Altstadt", "Marktplatz 5");
+    @Given("folgende Standorte existieren:")
+    public void folgendeStandorteExistieren(DataTable table) {
+        for (Map<String, String> row : table.asMaps()) {
+            locationManager.createLocation(
+                    row.get("locationId"),
+                    row.get("name"),
+                    row.get("address")
+            );
         }
     }
 
-    @When("der Kunde die Standortübersicht öffnet")
-    public void derKundeDieStandortuebersichtOeffnet() {
-        sichtbareStandorte = locationManager.getAll();
-    }
+    @Given("ein Standort existiert mit:")
+    public void einStandortExistiertMit(DataTable table) {
+        Map<String, String> row = table.asMaps().get(0);
 
-    @Then("werden alle verfügbaren Standorte mit Basisinformationen angezeigt")
-    public void werdenAlleVerfuegbarenStandorteMitBasisinformationenAngezeigt() {
-        assertNotNull(sichtbareStandorte, "Es wurden keine Standorte geladen");
-        assertFalse(sichtbareStandorte.isEmpty(), "Es sind keine Standorte im System");
-
-        for (Location loc : sichtbareStandorte) {
-            assertNotNull(loc.getLocationId(), "Standort hat keine ID");
-            assertNotNull(loc.getName(), "Standort hat keinen Namen");
-        }
-    }
-
-
-    @Given("der Kunde befindet sich in der Standortübersicht")
-    public void derKundeBefindetSichInDerStandortuebersicht() {
-        Location loc = locationManager.findById("LOC-PRICE-1");
-        if (loc == null) {
-            loc = locationManager.createLocation("LOC-PRICE-1", "City Center", "Hauptstraße 10");
-        }
+        Location loc = locationManager.createLocation(
+                row.get("locationId"),
+                row.get("name"),
+                row.get("address")
+        );
 
         pricingManager.setTariff(
                 loc,
-                new BigDecimal("0.30"), // AC
-                new BigDecimal("0.50")  // DC
+                new BigDecimal(row.get("acPrice")),
+                new BigDecimal(row.get("dcPrice"))
         );
+    }
 
-        if (loc.getChargingPoints().isEmpty()) {
-            chargingPointManager.createChargingPoint("CP-AC-1", ChargingMode.AC, loc);
-            chargingPointManager.createChargingPoint("CP-DC-1", ChargingMode.DC, loc);
+    @Given("folgende Ladepunkte existieren für Standort {string}:")
+    public void folgendeLadepunkteExistieren(String locationId, DataTable table) {
+        Location loc = locationManager.findById(locationId);
+        assertNotNull(loc);
+
+        for (Map<String, String> row : table.asMaps()) {
+            chargingPointManager.createChargingPoint(
+                    row.get("pointId"),
+                    ChargingMode.valueOf(row.get("mode")),
+                    loc
+            );
         }
-
-        sichtbareStandorte = locationManager.getAll();
     }
 
-    @When("der Kunde einen Standort auswählt")
-    public void derKundeEinenStandortAuswaehlt() {
-        ausgewaehlterStandort = locationManager.findById("LOC-PRICE-1");
-        if (ausgewaehlterStandort == null && !sichtbareStandorte.isEmpty()) {
-            ausgewaehlterStandort = sichtbareStandorte.get(0);
-        }
-        assertNotNull(ausgewaehlterStandort, "Es konnte kein Standort ausgewählt werden");
+    @Given("ein Standort {string} existiert")
+    public void einStandortExistiert(String locationId) {
+        locationManager.createLocation(locationId, "Test Standort", "Test Adresse");
     }
 
-    @Then("werden die aktuellen Preise für AC- und DC-Laden angezeigt")
-    public void werdenDieAktuellenPreiseFuerACUndDCLadenAngezeigt() {
-        Tariff tariff = ausgewaehlterStandort.getTariff();
-        assertNotNull(tariff, "Für den Standort ist kein Tarif gesetzt");
-
-        assertNotNull(tariff.getAcPricePerKWh(), "AC-Preis fehlt");
-        assertNotNull(tariff.getDcPricePerKWh(), "DC-Preis fehlt");
-    }
-
-    @Then("die verfügbaren Ladepunkte des Standorts werden angezeigt")
-    public void dieVerfuegbarenLadepunkteDesStandortsWerdenAngezeigt() {
-        List<ChargingPoint> points = ausgewaehlterStandort.getChargingPoints();
-        assertNotNull(points, "Ladepunktliste ist null");
-        assertFalse(points.isEmpty(), "Der Standort hat keine Ladepunkte");
+    @Given("ein Ladepunkt {string} mit Status {string} existiert am Standort {string}")
+    public void ladepunktMitStatusExistiert(String pointId, String status, String locationId) {
+        Location loc = locationManager.findById(locationId);
+        ChargingPoint cp = chargingPointManager.createChargingPoint(pointId, ChargingMode.AC, loc);
+        chargingPointManager.setStatus(pointId, ChargingStatus.valueOf(status));
     }
 
 
-
-    @Given("der Kunde befindet sich auf der Detailseite eines Standorts")
-    public void derKundeBefindetSichAufDerDetailseiteEinesStandorts() {
-        Location loc = locationManager.findById("LOC-DETAIL-1");
-        if (loc == null) {
-            loc = locationManager.createLocation("LOC-DETAIL-1", "Uni Campus", "Campusweg 1");
-        }
-
-        ChargingPoint cp = chargingPointManager.findById("CP-DETAIL-1");
-        if (cp == null) {
-            cp = chargingPointManager.createChargingPoint("CP-DETAIL-1", ChargingMode.AC, loc);
-        }
-
-        chargingPointManager.setStatus("CP-DETAIL-1", ChargingStatus.IN_BETRIEB_FREI);
+    @When("der Kunde die Standortübersicht öffnet")
+    public void derKundeOeffnetStandortuebersicht() {
+        visibleLocations = locationManager.getAll();
     }
 
-    @When("der Kunde einen Ladepunkt auswählt")
-    public void derKundeEinenLadepunktAuswaehlt() {
-        ausgewaehlterLadepunkt = chargingPointManager.findById("CP-DETAIL-1");
-        assertNotNull(ausgewaehlterLadepunkt, "Ausgewählter Ladepunkt existiert nicht");
+    @When("der Kunde den Standort {string} auswählt")
+    public void derKundeWaehltStandort(String locationId) {
+        selectedLocation = locationManager.findById(locationId);
+        assertNotNull(selectedLocation);
     }
 
-    @Then("wird der aktuelle Status des Ladepunktes angezeigt \\(frei, belegt, außer Betrieb)")
-    public void wirdDerAktuelleStatusDesLadepunktesAngezeigt() {
-        assertNotNull(ausgewaehlterLadepunkt.getStatus(), "Status des Ladepunktes ist null");
-        assertTrue(
-                ausgewaehlterLadepunkt.getStatus() == ChargingStatus.IN_BETRIEB_FREI
-                        || ausgewaehlterLadepunkt.getStatus() == ChargingStatus.IN_BETRIEB_BESETZT
-                        || ausgewaehlterLadepunkt.getStatus() == ChargingStatus.AUSSER_BETRIEB
-        );
+    @When("der Kunde den Ladepunkt {string} auswählt")
+    public void derKundeWaehltLadepunkt(String pointId) {
+        selectedChargingPoint = chargingPointManager.findById(pointId);
+        assertNotNull(selectedChargingPoint);
+    }
+
+
+    @Then("werden {int} Standorte angezeigt")
+    public void werdenStandorteAngezeigt(int expected) {
+        assertEquals(expected, visibleLocations.size());
+    }
+
+    @Then("werden die Preise {double} für AC und {double} für DC angezeigt")
+    public void werdenPreiseAngezeigt(double ac, double dc) {
+        Tariff tariff = selectedLocation.getTariff();
+        assertEquals(0, tariff.getAcPricePerKWh().compareTo(BigDecimal.valueOf(ac)));
+        assertEquals(0, tariff.getDcPricePerKWh().compareTo(BigDecimal.valueOf(dc)));
+    }
+
+    @Then("es werden {int} Ladepunkte angezeigt")
+    public void ladepunkteWerdenAngezeigt(int count) {
+        assertEquals(count, selectedLocation.getChargingPoints().size());
+    }
+
+    @Then("wird der Status {string} angezeigt")
+    public void statusWirdAngezeigt(String status) {
+        assertEquals(ChargingStatus.valueOf(status), selectedChargingPoint.getStatus());
     }
 }

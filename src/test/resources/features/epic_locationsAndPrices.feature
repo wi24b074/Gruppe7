@@ -3,17 +3,27 @@ Feature: Standorte und Preise einsehen
   damit ich einen passenden Ladeort auswählen und die Kosten vorab einschätzen kann.
 
   Scenario: Alle verfügbaren Standorte anzeigen
-    Given der Kunde befindet sich im Bereich "Standorte"
+    Given folgende Standorte existieren:
+      | locationId | name          | address           |
+      | LOC-1      | Hauptbahnhof  | Bahnhofstraße 1   |
+      | LOC-2      | Altstadt      | Marktplatz 5      |
     When der Kunde die Standortübersicht öffnet
-    Then werden alle verfügbaren Standorte mit Basisinformationen angezeigt
+    Then werden 2 Standorte angezeigt
 
   Scenario: Preise und Ladepunkte für einen Standort anzeigen
-    Given der Kunde befindet sich in der Standortübersicht
-    When der Kunde einen Standort auswählt
-    Then werden die aktuellen Preise für AC- und DC-Laden angezeigt
-    And die verfügbaren Ladepunkte des Standorts werden angezeigt
+    Given ein Standort existiert mit:
+      | locationId | name        | address        | acPrice | dcPrice |
+      | LOC-3      | City Center | Hauptstraße 10 | 0.30    | 0.50    |
+    And folgende Ladepunkte existieren für Standort "LOC-3":
+      | pointId   | mode |
+      | CP-AC-1  | AC   |
+      | CP-DC-1  | DC   |
+    When der Kunde den Standort "LOC-3" auswählt
+    Then werden die Preise 0.30 für AC und 0.50 für DC angezeigt
+    And es werden 2 Ladepunkte angezeigt
 
   Scenario: Status eines Ladepunktes anzeigen
-    Given der Kunde befindet sich auf der Detailseite eines Standorts
-    When der Kunde einen Ladepunkt auswählt
-    Then wird der aktuelle Status des Ladepunktes angezeigt (frei, belegt, außer Betrieb)
+    Given ein Standort "LOC-4" existiert
+    And ein Ladepunkt "CP-1" mit Status "FREI" existiert am Standort "LOC-4"
+    When der Kunde den Ladepunkt "CP-1" auswählt
+    Then wird der Status "FREI" angezeigt
