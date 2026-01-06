@@ -6,6 +6,7 @@ Feature: Rechnungen und Kundentransaktionen einsehen
   Scenario: Rechnungen pro Kunde einsehen
     Given der Betreiber ist im Admin-Dashboard eingeloggt
     And der Betreiber befindet sich im Bereich "Rechnungen"
-    When der Betreiber einen bestimmten Kunden auswählt
+    And ein Kunde mit ID "C-001" und E-Mail "kunde@mail.de" existiert
+    And der Kunde hat mindestens eine Rechnung
+    When der Betreiber den Kunden mit ID "C-001" auswählt
     Then werden alle zugehörigen Rechnungen des Kunden angezeigt
-

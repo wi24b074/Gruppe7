@@ -21,18 +21,23 @@ public class CustomerTransactionsInvoicesSteps {
         assertEquals("Rechnungen", bereich);
     }
 
-    @When("der Betreiber einen bestimmten Kunden auswählt")
-    public void derBetreiberEinenBestimmtenKundenAuswaehlt() {
-        selectedCustomer = new Customer("C-001", "kunde@mail.de", "Max Mustermann", "pw123");
-        CustomerAccount account = new CustomerAccount("C-001");
+    @And("ein Kunde mit ID {string} und E-Mail {string} existiert")
+    public void einKundeExistiert(String customerId, String email) {
+        selectedCustomer = new Customer(customerId, email, "Max Mustermann", "pw123");
+        CustomerAccount account = new CustomerAccount(customerId);
         selectedCustomer.setAccount(account);
+    }
 
+    @And("der Kunde hat mindestens eine Rechnung")
+    public void derKundeHatMindestensEineRechnung() {
         ChargingPoint cp = new ChargingPoint("CP-1", ChargingMode.AC, null);
-        ChargingSession session = new ChargingSession("1", selectedCustomer, cp);
-        session.getTotalCost();
-
+        ChargingSession session = new ChargingSession("S-1", selectedCustomer, cp);
         billingManager.chargeCustomerForSession(session);
+    }
 
+    @When("der Betreiber den Kunden mit ID {string} auswählt")
+    public void derBetreiberDenKundenAuswaehlt(String customerId) {
+        assertEquals(customerId, selectedCustomer.getCustomerId());
         resultInvoice = billingManager.getInvoiceForCustomer(selectedCustomer);
     }
 
