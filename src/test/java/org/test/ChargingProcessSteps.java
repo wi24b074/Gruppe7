@@ -3,6 +3,8 @@ package org.test;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
 import io.cucumber.java.en.Then;
+import io.cucumber.datatable.DataTable;
+
 import org.example.ChargingPoint;
 import org.example.ChargingPointManager;
 import org.example.ChargingStatus;
@@ -11,6 +13,7 @@ import org.example.Customer;
 import org.example.CustomerAccount;
 
 import java.math.BigDecimal;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -21,117 +24,101 @@ public class ChargingProcessSteps {
 
     private Customer customer;
     private CustomerAccount account;
-    private ChargingPoint selectedPoint;
+    private ChargingPoint selectedChargingPoint;
 
-
-
-    private ChargingPoint ensureFreeChargingPoint(String cpId) {
-        ChargingPoint cp = cpManager.findById(cpId);
-        if (cp == null) {
-
-            cp = cpManager.createChargingPoint(cpId, ChargingMode.AC, null);
-        }
-        cp.setStatus(ChargingStatus.IN_BETRIEB_FREI);
-        return cp;
-    }
-
-
-    private ChargingStatus mapStatus(String statusText) {
-        switch (statusText) {
-            case "BELEGT":
-                return ChargingStatus.IN_BETRIEB_BESETZT;
-            case "FREI":
-                return ChargingStatus.IN_BETRIEB_FREI;
-            default:
-
-                return ChargingStatus.valueOf(statusText);
-        }
-    }
-
-
-    @Given("ein Kunde {string} existiert")
-    public void kunde_existiert(String email) {
-        customer = new Customer("C-1", email, "Testkunde_1@gmail.com", "CUST-1");
+    @Given("ein Kunde mit der E-Mail {string} existiert")
+    public void ein_kunde_existiert(String email) {
+        customer = new Customer("C-1", email, "Max Mustermann", "CUST-1");
         account = customer.getAccount();
         assertNotNull(account);
     }
 
-    @Given("ein freier Ladepunkt {string} existiert")
-    public void freier_ladepunkt_existiert(String cpId) {
-        ensureFreeChargingPoint(cpId);
-    }
-
-    @When("der Kunde den Ladevorgang am Ladepunkt {string} startet")
-    public void kunde_startet_ladevorgang(String cpId) {
-        ChargingPoint cp = cpManager.findById(cpId);
-        assertNotNull(cp, "Ladepunkt " + cpId + " existiert nicht");
-        cp.setStatus(ChargingStatus.IN_BETRIEB_BESETZT);
-    }
-
-    @Then("ist der Ladepunkt {string} im Status {string}")
-    public void ist_ladepunkt_im_status(String cpId, String statusText) {
-        ChargingPoint cp = cpManager.findById(cpId);
-        assertNotNull(cp, "Ladepunkt " + cpId + " existiert nicht");
-        ChargingStatus expected = mapStatus(statusText);
-        assertEquals(expected, cp.getStatus());
-    }
-
-    @When("der Kunde den Ladevorgang am Ladepunkt {string} stoppt")
-    public void kunde_stoppt_ladevorgang(String cpId) {
-        ChargingPoint cp = cpManager.findById(cpId);
-        assertNotNull(cp, "Ladepunkt " + cpId + " existiert nicht");
-        cp.setStatus(ChargingStatus.IN_BETRIEB_FREI);
-    }
-
-    @Given("ein Kunde {string} existiert und hat Guthaben {double}")
+    @Given("ein Kunde mit der E-Mail {string} existiert und hat ein Guthaben von {double}")
     public void kunde_existiert_mit_guthaben(String email, double balance) {
-        customer = new Customer("C-2", email, "Testkunde@gmail.com", "CUST-2");
-        account = customer.getAccount();
-        assertNotNull(account);
+        ein_kunde_existiert(email);
         account.credit(BigDecimal.valueOf(balance));
     }
 
-    @When("der Kunde einen Ladevorgang am Ladepunkt {string} durchführt mit Verbrauch {double}")
-    public void kunde_fuehrt_ladevorgang_durch(String cpId, double verbrauch) {
-        ChargingPoint cp = ensureFreeChargingPoint(cpId);
-        BigDecimal kosten = BigDecimal.valueOf(verbrauch);
-        account.debit(kosten);
+    @Given("ein Ladepunkt mit ID {string} ist frei")
+    public void ladepunkt_ist_frei(String pointId) {
+        ChargingPoint cp = cpManager.findById(pointId);
+        if (cp == null) {
+            cp = cpManager.createChargingPoint(pointId, ChargingMode.AC, null);
+        }
+        cp.setStatus(ChargingStatus.IN_BETRIEB_FREI);
+    }
+
+    @Given("folgende Ladepunkte existieren:")
+    public void folgende_ladepunkte_existieren(DataTable table) {
+        for (Map<String, String> row : table.asMaps()) {
+            String id = row.get("Ladepunkt");
+            String status = row.get("Status");
+
+            ChargingPoint cp = cpManager.findById(id);
+            if (cp == null) {
+                cp = cpManager.createChargingPoint(id, ChargingMode.AC, null);
+            }
+
+            cp.setStatus(mapStatus(status));
+        }
+    }
+
+    @When("der Kunde startet den Ladevorgang am Ladepunkt {string}")
+    public void kunde_startet_ladevorgang(String pointId) {
+        ChargingPoint cp = cpManager.findById(pointId);
+        assertNotNull(cp);
+        cp.setStatus(ChargingStatus.IN_BETRIEB_BESETZT);
+    }
+
+    @When("der Kunde stoppt den Ladevorgang am Ladepunkt {string}")
+    public void kunde_stoppt_ladevorgang(String pointId) {
+        ChargingPoint cp = cpManager.findById(pointId);
+        assertNotNull(cp);
+        cp.setStatus(ChargingStatus.IN_BETRIEB_FREI);
+    }
+
+    @When("der Kunde führt einen Ladevorgang am Ladepunkt {string} mit Kosten von {double} durch")
+    public void ladevorgang_mit_kosten(String pointId, double kosten) {
+        ChargingPoint cp = cpManager.findById(pointId);
+        assertNotNull(cp);
+
+        account.debit(BigDecimal.valueOf(kosten));
         cp.setStatus(ChargingStatus.IN_BETRIEB_BESETZT);
         cp.setStatus(ChargingStatus.IN_BETRIEB_FREI);
     }
 
-    @Then("wird das Guthaben des Kunden auf {double} reduziert")
-    public void guthaben_reduziert(double expectedBalance) {
-        assertNotNull(account, "Kein Kundenkonto gefunden");
-        assertEquals(0, account.getBalance()
-                        .compareTo(BigDecimal.valueOf(expectedBalance)),
-                "Guthaben stimmt nicht");
+    @When("der Kunde wählt den Ladepunkt {string} aus")
+    public void kunde_waehlt_ladepunkt(String pointId) {
+        selectedChargingPoint = cpManager.findById(pointId);
+        assertNotNull(selectedChargingPoint);
     }
 
-
-
-    @Given("mehrere Ladepunkte existieren")
-    public void mehrere_ladepunkte_existieren() {
-        ensureFreeChargingPoint("CP-1");
-        ensureFreeChargingPoint("CP-2");
-        ensureFreeChargingPoint("CP-3");
+    @Then("hat der Ladepunkt {string} den Status {string}")
+    public void ladepunkt_hat_status(String pointId, String status) {
+        ChargingPoint cp = cpManager.findById(pointId);
+        assertNotNull(cp);
+        assertEquals(mapStatus(status), cp.getStatus());
     }
 
-    @Given("Ladepunkt {string} ist frei")
-    public void ladepunkt_ist_frei(String cpId) {
-        ChargingPoint cp = ensureFreeChargingPoint(cpId);
-        assertEquals(ChargingStatus.IN_BETRIEB_FREI, cp.getStatus());
+    @Then("beträgt das Guthaben des Kunden {double}")
+    public void guthaben_betraegt(double expected) {
+        assertEquals(
+                0,
+                account.getBalance().compareTo(BigDecimal.valueOf(expected))
+        );
     }
 
-    @When("der Kunde einen Ladepunkt auswählt")
-    public void kunde_waehlt_einen_ladepunkt_aus() {
-        selectedPoint = cpManager.findById("CP-3");
-        assertNotNull(selectedPoint, "Ladepunkt CP-3 existiert nicht");
+    @Then("ist der ausgewählte Ladepunkt {string}")
+    public void ausgewählter_ladepunkt(String pointId) {
+        assertNotNull(selectedChargingPoint);
+        assertEquals(pointId, selectedChargingPoint.getPointId());
     }
 
-    @Then("wird {string} als ausgewählter Ladepunkt angezeigt")
-    public void ausgewaehlter_ladepunkt_angezeigt(String expectedId) {
-        assertNotNull(selectedPoint, "Es wurde kein Ladepunkt ausgewählt");
-        assertEquals(expectedId, selectedPoint.getPointId());
+    private ChargingStatus mapStatus(String status) {
+        return switch (status) {
+            case "FREI" -> ChargingStatus.IN_BETRIEB_FREI;
+            case "BELEGT" -> ChargingStatus.IN_BETRIEB_BESETZT;
+            default -> ChargingStatus.valueOf(status);
+        };
     }
 }
