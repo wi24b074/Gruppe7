@@ -4,8 +4,8 @@ Feature: Rechnungen und Kundentransaktionen einsehen
   für Buchhaltung und Analyse durchführen kann.
 
   Scenario: Rechnungen pro Kunde einsehen
-    Given der Betreiber ist im Admin-Dashboard eingeloggt
-    And der Betreiber befindet sich im Bereich "Rechnungen"
+    Given der Betreiber ist in dem Admin-Dashboard eingeloggt
+    And der Betreiber befindet sich in dem Bereich "Rechnungen"
     And ein Kunde mit ID "C-001" und E-Mail "kunde@mail.de" existiert
     And der Kunde hat mindestens eine Rechnung
     When der Betreiber den Kunden mit ID "C-001" auswählt

@@ -20,7 +20,7 @@ public class ManagePricesSteps {
     private Location currentLocation;
 
 
-    @Given("ein Standort mit id {string} existiert")
+    @Given("ein Standort mit der id {string} existiert")
     public void einStandortMitIdExistiert(String locId) {
         currentLocation = locationManager.findById(locId);
         if (currentLocation == null) {

@@ -20,4 +20,4 @@ Feature: Standort- und Ladepunkt verwalten
   Scenario: Ladepunkt deaktivieren
     Given ein aktiver Ladepunkt "CP-2" existiert am Standort "LOC-1"
     When der Administrator deaktiviert den Ladepunkt "CP-2"
-    Then hat der Ladepunkt "CP-2" den Status "AUSSER_BETRIEB"
+    Then ist der Status des Ladepunkt "CP-2" "AUSSER_BETRIEB"

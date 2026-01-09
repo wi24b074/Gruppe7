@@ -11,12 +11,12 @@ public class CustomerTransactionsInvoicesSteps {
     private Customer selectedCustomer;
     private Invoice resultInvoice;
 
-    @Given("der Betreiber ist im Admin-Dashboard eingeloggt")
+    @Given("der Betreiber ist in dem Admin-Dashboard eingeloggt")
     public void derBetreiberIstImAdminDashboardEingeloggt() {
         assertTrue(true);
     }
 
-    @And("der Betreiber befindet sich im Bereich {string}")
+    @And("der Betreiber befindet sich in dem Bereich {string}")
     public void derBetreiberBefindetSichImBereich(String bereich) {
         assertEquals("Rechnungen", bereich);
     }

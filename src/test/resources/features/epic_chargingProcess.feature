@@ -19,7 +19,7 @@ Feature: Ladevorgang durchführen
     Then beträgt das Guthaben des Kunden 15.00
 
   Scenario: Kunde wählt einen freien Ladepunkt aus
-    Given folgende Ladepunkte existieren:
+    Given folgende Ladepunkte bestehen:
       | Ladepunkt | Status |
       | CP-1      | FREI   |
       | CP-2      | BELEGT |

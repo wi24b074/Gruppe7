@@ -102,7 +102,7 @@ public class ChargerSteps {
         cpManager.deactivateChargingPoint(cpId);
     }
 
-    @Then("hat der Ladepunkt {string} den Status {string}")
+    @Then("ist der Status des Ladepunkt {string} {string}")
     public void ladepunkt_hat_status(String cpId, String expectedStatus) {
         ChargingPoint cp = cpManager.findById(cpId);
         assertEquals(ChargingStatus.valueOf(expectedStatus), cp.getStatus());

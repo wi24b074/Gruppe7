@@ -48,8 +48,8 @@ public class ChargingProcessSteps {
         cp.setStatus(ChargingStatus.IN_BETRIEB_FREI);
     }
 
-    @Given("folgende Ladepunkte existieren:")
-    public void folgende_ladepunkte_existieren(DataTable table) {
+    @Given("folgende Ladepunkte bestehen:")
+    public void folgende_ladepunkte_bestehen(DataTable table) {
         for (Map<String, String> row : table.asMaps()) {
             String id = row.get("Ladepunkt");
             String status = row.get("Status");
