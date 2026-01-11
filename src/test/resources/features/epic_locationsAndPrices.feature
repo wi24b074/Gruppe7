@@ -27,3 +27,8 @@ Feature: Standorte und Preise einsehen
     And ein Ladepunkt "CP-1" mit Status "FREI" existiert am Standort "LOC-4"
     When der Kunde den Ladepunkt "CP-1" auswählt
     Then wird der Status "FREI" angezeigt
+
+  Scenario: Keine Standorte im System vorhanden
+    Given es existieren keine Standorte im System
+    When der Kunde die Standortübersicht öffnet
+    Then werden 0 Standorte angezeigt

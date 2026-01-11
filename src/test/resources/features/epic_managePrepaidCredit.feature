@@ -25,3 +25,9 @@ Feature: Prepaid-Guthaben verwalten
       | Betrag |
       | 10.00  |
       | 25.00  |
+
+  Scenario: Kunde lädt sein Konto mit ungültigem Betrag auf
+    Given ein Kunde mit email "max@example.com" existiert und sein Konto hat Guthaben 10.00
+    When der Kunde versucht sein Konto mit -5.00 aufzuladen
+    Then bleibt das Konto-Guthaben bei 10.00
+    And die Aufladehistorie ist leer

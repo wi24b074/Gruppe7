@@ -14,6 +14,7 @@ import org.example.ChargingMode;
 import org.example.ChargingStatus;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -90,6 +91,11 @@ public class LocationsAndPricesSteps {
         Location loc = locationManager.findById(locationId);
         ChargingPoint cp = chargingPointManager.createChargingPoint(pointId, ChargingMode.AC, loc);
         chargingPointManager.setStatus(pointId, mapStatus(status));
+    }
+
+    @Given("es existieren keine Standorte im System")
+    public void esExistierenKeineStandorteImSystem() {
+        locationManager.clear();
     }
 
 
