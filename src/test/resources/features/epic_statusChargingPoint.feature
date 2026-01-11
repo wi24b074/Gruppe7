@@ -35,3 +35,9 @@ Feature: Nutzung und Auslastung einsehen
     And der Betreiber befindet sich im Bereich "Ladevorgänge"
     When der Betreiber wählt den Standort "LOC-100"
     Then werden alle Ladevorgänge angezeigt, die an diesem Standort durchgeführt wurden
+
+  Scenario: Keine Ladepunkte im System vorhanden
+    Given es existieren keine Ladepunkte im System
+    And der Betreiber befindet sich auf dem Dashboard
+    When der Betreiber die Echtzeitansicht der Ladepunkte öffnet
+    Then werden keine Ladepunkte angezeigt

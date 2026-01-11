@@ -87,4 +87,7 @@ public class LocationManager {
         return new LocationDetails(loc, tariff, loc.getChargingPoints());
     }
 
+    public void clear() {
+        locations.clear();
+    }
 }

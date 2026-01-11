@@ -164,4 +164,15 @@ public class StatusChargingPointSteps {
             assertEquals(selectedLocation, s.getChargingPoint().getLocation());
         }
     }
+
+    @Given("es existieren keine Ladepunkte im System")
+    public void keineLadepunkteImSystem() {
+        locationManager.clear();
+    }
+
+    @Then("werden keine Ladepunkte angezeigt")
+    public void werdenKeineLadepunkteAngezeigt() {
+        assertNotNull(visibleChargingPoints);
+        assertTrue(visibleChargingPoints.isEmpty());
+    }
 }
