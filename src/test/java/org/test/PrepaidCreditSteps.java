@@ -15,6 +15,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class PrepaidCreditSteps {
 
+    private Exception aufladeFehler;
+
     @Before
     public void resetState() {
         CustomerManager.getInstance().clear();
@@ -28,6 +30,7 @@ public class PrepaidCreditSteps {
 
     private final List<Double> aufladeHistorie = new ArrayList<>();
     private List<Double> geseheneHistorie = new ArrayList<>();
+
 
 
     @Given("ein Kunde mit email {string} existiert und sein Konto hat Guthaben {double}")
@@ -46,11 +49,31 @@ public class PrepaidCreditSteps {
         assertEquals(guthaben, currentCustomer.getBalance(), 0.0001);
     }
 
+    @When("der Kunde versucht sein Konto mit {double} aufzuladen")
+    public void derKundeVersuchtSeinKontoMitAufzuladen(double betrag) {
+        try {
+            customerManager.topUpCustomer(currentEmail, betrag);
+        } catch (Exception e) {
+            aufladeFehler = e;
+        }
+    }
+
     @When("der Kunde lädt sein Konto mit {double} auf")
     public void derKundeLaedtSeinKontoMitAuf(double betrag) {
         customerManager.topUpCustomer(currentEmail, betrag);
         currentCustomer = customerManager.findByEmail(currentEmail);
         aufladeHistorie.add(betrag);
+    }
+
+    @Then("bleibt das Konto-Guthaben bei {double}")
+    public void bleibtDasKontoGuthabenBei(double erwartetesGuthaben) {
+        currentCustomer = customerManager.findByEmail(currentEmail);
+        assertEquals(erwartetesGuthaben, currentCustomer.getBalance(), 0.0001);
+    }
+
+    @Then("die Aufladehistorie ist leer")
+    public void dieAufladehistorieIstLeer() {
+        assertTrue(aufladeHistorie.isEmpty(), "Aufladehistorie sollte leer sein");
     }
 
     @Then("hat das Konto ein Guthaben von {double}")
