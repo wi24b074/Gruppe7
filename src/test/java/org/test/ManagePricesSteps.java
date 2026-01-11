@@ -1,5 +1,6 @@
 package org.test;
 
+import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
 import io.cucumber.java.en.Then;
@@ -16,8 +17,15 @@ public class ManagePricesSteps {
 
     private final LocationManager locationManager = LocationManager.getInstance();
     private final PricingManager pricingManager = PricingManager.getInstance();
-
+    private Exception lastException;
     private Location currentLocation;
+
+    @Before
+    public void resetState() {
+        locationManager.clear();
+        lastException = null;
+        currentLocation = null;
+    }
 
 
     @Given("ein Standort mit der id {string} existiert")
@@ -79,8 +87,14 @@ public class ManagePricesSteps {
                 tariff.getDcPricePerKWh().compareTo(BigDecimal.valueOf(expectedDc)),
                 "DC-Preis stimmt nicht"
         );
+
     }
 
+    @Then("wird ein Fehler ausgelöst")
+    public void werdenKeinePreiseGespeichert() {
+        assertNotNull(lastException, "Es wurde kein Fehler ausgelöst");
+        assertInstanceOf(IllegalStateException.class, lastException);
+    }
 
 
     @Given("der AC-Preis des Standorts {string} beträgt {double}")
@@ -125,11 +139,12 @@ public class ManagePricesSteps {
     public void derBetreiberAendertDiePreiseFuerStandort(double newAc, double newDc, String locId) {
         Location loc = locationManager.findById(locId);
         assertNotNull(loc, "Standort " + locId + " existiert nicht");
+        currentLocation = loc;
 
-        pricingManager.changeTariff(
-                loc,
-                BigDecimal.valueOf(newAc),
-                BigDecimal.valueOf(newDc)
-        );
+        try {
+            pricingManager.changeTariff(loc, BigDecimal.valueOf(newAc), BigDecimal.valueOf(newDc));
+        } catch (Exception e) {
+            lastException = e;
+        }
     }
 }

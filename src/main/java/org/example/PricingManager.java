@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 public class PricingManager {
     private static final PricingManager INSTANCE = new PricingManager();
 
+
     public void setTariff(Location location, BigDecimal acPrice, BigDecimal dcPrice) {
         if (location == null) {
             throw new IllegalArgumentException("Location cannot be null");

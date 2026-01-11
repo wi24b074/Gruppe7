@@ -16,3 +16,12 @@ Feature: Preise verwalten
     When der Betreiber ändert den AC-Preis auf 0.30 und den DC-Preis auf 0.50 für Standort "LOC-1"
     Then beträgt der AC-Preis des Standorts "LOC-1" 0.30
     And beträgt der DC-Preis des Standorts "LOC-1" 0.50
+
+
+
+  Scenario: Preise ändern ohne bestehenden Tarif
+    Given ein Standort mit der id "LOC-1" existiert
+    And für den Standort "LOC-1" existieren noch keine Preise
+    When der Betreiber ändert den AC-Preis auf 0.30 und den DC-Preis auf 0.50 für Standort "LOC-1"
+    Then wird ein Fehler ausgelöst
+
