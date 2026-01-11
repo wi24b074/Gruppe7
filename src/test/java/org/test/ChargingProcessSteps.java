@@ -188,4 +188,14 @@ public class ChargingProcessSteps {
             cp.setStatus(mapStatus(status));
         }
     }
+
+    @When("der Kunde versucht den Ladevorgang am Ladepunkt {string} zu starten")
+    public void derKundeVersuchtDenLadevorgangAmLadepunktZuStarten(String pointId) {
+        ChargingPoint cp = cpManager.findById(pointId);
+        assertNotNull(cp, "Ladepunkt " + pointId + " existiert nicht");
+
+        if (cp.getStatus() == ChargingStatus.IN_BETRIEB_FREI) {
+            cp.setStatus(ChargingStatus.IN_BETRIEB_BESETZT);
+        }
+    }
 }

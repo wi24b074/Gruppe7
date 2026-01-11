@@ -13,3 +13,9 @@ Feature: Kundenkonto anlegen
     When der Kunde meldet sich mit E-Mail "registered@example.com" und Passwort "password" an
     Then wird der Kunde erfolgreich eingeloggt
     And der Kunde hat Zugriff auf sein Kundenkonto
+
+  Scenario: Kunde kann keinen Ladevorgang an einem belegten Ladepunkt starten
+    Given ein Standort mit ID "LOC-1" existiert
+    And ein Ladepunkt mit ID "CP-9" am Standort "LOC-1" hat den Status "BELEGT"
+    When der Kunde versucht den Ladevorgang am Ladepunkt "CP-9" zu starten
+    Then hat der Ladepunkt "CP-9" den Status "BELEGT"

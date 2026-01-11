@@ -13,6 +13,10 @@ public class LocationManager {
     public static LocationManager getInstance(){ return INSTANCE; }
 
     public Location createLocation(String id, String name, String address){
+        Location existing = findById(id);
+        if (existing != null) {
+            return existing;
+        }
         Location loc = new Location(id, name, address);
         locations.add(loc);
         return loc;

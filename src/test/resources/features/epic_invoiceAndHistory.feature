@@ -31,3 +31,11 @@ Feature: Rechnungen und Historie einsehen
       | 65.0   | 60.0    |
     When der Kunde seine Guthabenhistorie einsehen möchte
     Then werden alle Guthabenänderungen angezeigt
+
+  Scenario: Kunde hat noch keine Rechnung
+    Given ein Kunde mit E-Mail "max@example.com" existiert
+    And der Kunde hat keine abgeschlossenen Ladevorgänge
+    And es existiert keine Rechnung für den Kunden
+    When der Kunde seine Rechnung einsehen möchte
+    Then wird keine Rechnung angezeigt
+    And es wird eine Meldung "Keine Rechnung vorhanden" angezeigt
