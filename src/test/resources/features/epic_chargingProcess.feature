@@ -31,3 +31,12 @@ Feature: Ladevorgang durchführen
     When der Kunde wählt den Ladepunkt "CP-3" aus
     Then ist der ausgewählte Ladepunkt "CP-3"
 
+    #Error/Edge Case
+  Scenario: Kunde kann keinen Ladevorgang starten, wenn der Ladepunkt belegt ist
+    Given ein Standort mit ID "LOC-1" existiert
+    And ein Kunde mit der E-Mail "max@example.com" existiert
+    And folgende Ladepunkte am Standort "LOC-1" bestehen:
+      | Ladepunkt | Status |
+      | CP-2      | BELEGT |
+    When der Kunde versucht den Ladevorgang am Ladepunkt "CP-2" zu starten
+    Then hat der Ladepunkt "CP-2" den Status "BELEGT"

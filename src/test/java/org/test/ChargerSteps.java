@@ -107,4 +107,22 @@ public class ChargerSteps {
         ChargingPoint cp = cpManager.findById(cpId);
         assertEquals(ChargingStatus.valueOf(expectedStatus), cp.getStatus());
     }
+
+    @When("der Administrator versucht einen neuen Standort mit id {string}, name {string}, adresse {string} anzulegen")
+    public void derAdministratorVersuchtEinenNeuenStandortMitIdNameAdresseAnzulegen(String locId, String name, String address) {
+        try {
+            locationManager.createLocation(locId, name, address);
+        } catch (Exception ignored) {
+        }
+    }
+
+    @Then("bleibt die Anzahl der Standorte mit id {string} gleich {string}")
+    public void anzahl_standorte_mit_id_bleibt_gleich(String locId, String expectedCount) {
+        long count = locationManager.getAll().stream()
+                .filter(l -> l.getLocationId().equals(locId))
+                .count();
+        assertEquals(Long.parseLong(expectedCount), count);
+    }
+
+
 }

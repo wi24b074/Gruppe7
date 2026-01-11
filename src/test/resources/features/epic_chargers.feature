@@ -21,3 +21,9 @@ Feature: Standort- und Ladepunkt verwalten
     Given ein aktiver Ladepunkt "CP-2" existiert am Standort "LOC-1"
     When der Administrator deaktiviert den Ladepunkt "CP-2"
     Then ist der Status des Ladepunkt "CP-2" "AUSSER_BETRIEB"
+
+  #Error/Edge Case
+  Scenario: Standort mit bereits vergebener ID kann nicht erneut angelegt werden
+    Given ein Standort mit id "LOC-1" existiert
+    When der Administrator versucht einen neuen Standort mit id "LOC-1", name "Duplikat", adresse "Irgendwo 1" anzulegen
+    Then bleibt die Anzahl der Standorte mit id "LOC-1" gleich "1"

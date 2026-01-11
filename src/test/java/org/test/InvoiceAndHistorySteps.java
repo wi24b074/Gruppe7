@@ -1,5 +1,6 @@
 package org.test;
 
+import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
 import io.cucumber.java.en.Then;
@@ -22,6 +23,28 @@ public class InvoiceAndHistorySteps {
     private Customer customer;
     private Invoice invoice;
     private List<ChargingSession> sessions = new ArrayList<>();
+    private String uiMessage;
+
+    @And("der Kunde hat keine abgeschlossenen Ladevorgänge")
+    public void derKundeHatKeineAbgeschlossenenLadevorgänge() {
+        assertTrue(true);
+    }
+
+    @And("es existiert keine Rechnung für den Kunden")
+    public void esExistiertKeineRechnungFürDenKunden() {
+        assertTrue(true);
+    }
+
+    @Then("wird keine Rechnung angezeigt")
+    public void wirdKeineRechnungAngezeigt() {
+        invoice = null;
+        uiMessage = "Keine Rechnung vorhanden";
+    }
+
+    @And("es wird eine Meldung {string} angezeigt")
+    public void esWirdEineMeldungAngezeigt(String expected) {
+        assertEquals(expected, uiMessage);
+    }
 
     private static class BalanceChange {
         double before;

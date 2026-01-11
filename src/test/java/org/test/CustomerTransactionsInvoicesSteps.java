@@ -11,6 +11,8 @@ public class CustomerTransactionsInvoicesSteps {
     private Customer selectedCustomer;
     private Invoice resultInvoice;
 
+
+
     @Given("der Betreiber ist in dem Admin-Dashboard eingeloggt")
     public void derBetreiberIstImAdminDashboardEingeloggt() {
         assertTrue(true);
@@ -46,5 +48,23 @@ public class CustomerTransactionsInvoicesSteps {
         assertNotNull(resultInvoice);
         assertEquals(selectedCustomer, resultInvoice.getCustomer());
         assertFalse(resultInvoice.getSessions().isEmpty());
+    }
+
+    @And("der Kunde hat keine Rechnungen")
+    public void derKundeHatKeineRechnungen() {
+        assertNull(billingManager.getInvoiceForCustomer(selectedCustomer));
+    }
+
+    @Then("werden keine Rechnungen für den Kunden angezeigt")
+    public void werdenKeineRechnungenFürDenKundenAngezeigt() {
+        if (resultInvoice == null) {
+            assertTrue(true);
+        } else {
+            assertNotConfirmNull(resultInvoice.getSessions());
+            assertTrue(resultInvoice.getSessions().isEmpty());
+        }
+    }
+    private void assertNotConfirmNull(Object obj) {
+        assertNotNull(obj);
     }
 }
