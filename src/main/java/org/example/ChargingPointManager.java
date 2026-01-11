@@ -74,6 +74,8 @@ public class ChargingPointManager {
         }
     }
 
+
+
     public void deactivateChargingPoint(String pointId) {
         ChargingPoint cp = findById(pointId);
         if (cp == null) {
@@ -88,6 +90,10 @@ public class ChargingPointManager {
             throw new IllegalArgumentException("Ladepunkt " + pointId + " existiert nicht");
         }
         cp.setStatus(ChargingStatus.IN_BETRIEB_FREI);
+    }
+
+    public void clear() {
+        points.clear();
     }
 
 }
