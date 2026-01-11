@@ -29,6 +29,14 @@ public class LocationsAndPricesSteps {
     private Location selectedLocation;
     private ChargingPoint selectedChargingPoint;
 
+    private ChargingStatus mapStatus(String status) {
+        return switch (status) {
+            case "FREI" -> ChargingStatus.IN_BETRIEB_FREI;
+            case "BELEGT" -> ChargingStatus.IN_BETRIEB_BESETZT;
+            case "AUSSER_BETRIEB" -> ChargingStatus.AUSSER_BETRIEB;
+            default -> ChargingStatus.valueOf(status);
+        };
+    }
 
     @Given("folgende Standorte existieren:")
     public void folgendeStandorteExistieren(DataTable table) {
@@ -81,7 +89,7 @@ public class LocationsAndPricesSteps {
     public void ladepunktMitStatusExistiert(String pointId, String status, String locationId) {
         Location loc = locationManager.findById(locationId);
         ChargingPoint cp = chargingPointManager.createChargingPoint(pointId, ChargingMode.AC, loc);
-        chargingPointManager.setStatus(pointId, ChargingStatus.valueOf(status));
+        chargingPointManager.setStatus(pointId, mapStatus(status));
     }
 
 
@@ -122,6 +130,6 @@ public class LocationsAndPricesSteps {
 
     @Then("wird der Status {string} angezeigt")
     public void statusWirdAngezeigt(String status) {
-        assertEquals(ChargingStatus.valueOf(status), selectedChargingPoint.getStatus());
+        assertEquals(mapStatus(status), selectedChargingPoint.getStatus());
     }
 }

@@ -2,6 +2,7 @@ package org.example;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 public class CustomerManager {
@@ -12,9 +13,9 @@ public class CustomerManager {
 
     public static CustomerManager getInstance(){ return INSTANCE; }
 
-    public Customer registerCustomer(String email, String name, String passwordHash){
+    public Customer registerCustomer(String email, String name, String password){
         String id = UUID.randomUUID().toString();
-        Customer c = new Customer(id, email, name, passwordHash);
+        Customer c = new Customer(id, email, name, password);
         customers.add(c);
         return c;
     }
@@ -26,14 +27,21 @@ public class CustomerManager {
 
     public Customer login(String email, String passwordHash) {
         return customers.stream()
-                .filter(c -> c.getEmail().equals(email)
-                        && c.getPasswordHash().equals(passwordHash))
+                .filter(c -> Objects.equals(c.getEmail(), email))
+                .filter(c -> Objects.equals(c.getPasswordHash(), passwordHash))
                 .findFirst()
                 .orElse(null);
     }
 
     public Customer findByEmail(String email){
-        return customers.stream().filter(c -> c.getEmail().equals(email)).findFirst().orElse(null);
+        return customers.stream()
+                .filter(c -> Objects.equals(c.getEmail(), email))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public void clear() {
+        customers.clear();
     }
 }
 

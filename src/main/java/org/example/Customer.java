@@ -1,14 +1,16 @@
 package org.example;
 
 public class Customer extends User {
-    private final String customerNumber;
+
     private  CustomerAccount account;
     private double balance;
+    private String passwordHash;
 
-    public Customer(String userId, String email, String name, String customerNumber) {
+    public Customer(String userId, String email, String name, String password) {
         super(userId, email, name);
-        this.customerNumber = customerNumber;
+
         this.account = new CustomerAccount("ACC-"+userId);
+        this.passwordHash = password;
     }
 
     public void topUp(double amount) {
@@ -20,7 +22,10 @@ public class Customer extends User {
         return balance;
     }
 
-    public String getCustomerNumber() { return customerNumber; }
+    public String getPasswordHash() {
+        return passwordHash;
+    }
+
     public CustomerAccount getAccount() { return account; }
     public String getCustomerId() {
         return getUserId();

@@ -1,5 +1,6 @@
 package org.test;
 
+import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
 import io.cucumber.java.en.Then;
@@ -13,6 +14,11 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class PrepaidCreditSteps {
+
+    @Before
+    public void resetState() {
+        CustomerManager.getInstance().clear();
+    }
 
     private final CustomerManager customerManager = CustomerManager.getInstance();
 

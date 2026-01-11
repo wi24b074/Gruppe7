@@ -1,8 +1,9 @@
 package org.test;
 
+import io.cucumber.java.Before;
 import io.cucumber.java.en.*;
 import org.example.*;
-
+import java.util.Objects;
 import static org.junit.jupiter.api.Assertions.*;
 public class CustomerAccountSteps {
 
@@ -10,6 +11,10 @@ public class CustomerAccountSteps {
     private Customer currentCustomer;
     private Customer loggedInCustomer;
 
+    @Before
+    public void resetState() {
+        customerManager.clear();
+    }
 
 
     @Given("ein neuer Kunde befindet sich auf der Registrierungsseite")
